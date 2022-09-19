@@ -1,5 +1,6 @@
 package com.nikitazamyslov.shoppinglist.domain.repository
 
+import androidx.lifecycle.LiveData
 import com.nikitazamyslov.shoppinglist.domain.entity.ShopItem
 
 interface ShopListRepository {
@@ -12,5 +13,5 @@ interface ShopListRepository {
 
     fun getShopItemById(id: Int): ShopItem?
 
-    fun getShopList(): List<ShopItem>
+    fun getShopList(): LiveData<List<ShopItem>>
 }
