@@ -9,7 +9,7 @@ import com.nikitazamyslov.shoppinglist.R
 import com.nikitazamyslov.shoppinglist.domain.entity.ShopItem
 
 class ShopListAdapter(
-    private val dataset: List<ShopItem>,
+    private var dataset: List<ShopItem>,
     private val itemClickListener: OnItemClickListener
 ) : RecyclerView.Adapter<ShopListAdapter.ViewHolder>() {
 
@@ -34,10 +34,28 @@ class ShopListAdapter(
         }
     }
 
+    fun setData(newDataSet: List<ShopItem>) {
+        dataset = newDataSet
+        notifyDataSetChanged()
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.item_shop_enabled, parent, false)
+            LayoutInflater.from(parent.context)
+                .inflate(
+                    if (viewType == 1) R.layout.item_shop_enabled else R.layout.item_shop_disabled,
+                    parent,
+                    false
+                )
         )
+    }
+
+    override fun onViewRecycled(holder: ViewHolder) {
+        super.onViewRecycled(holder)
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return if (dataset[position].enabled) 1 else 0
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

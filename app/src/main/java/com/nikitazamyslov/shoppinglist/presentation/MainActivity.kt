@@ -14,14 +14,18 @@ class MainActivity : AppCompatActivity(), OnItemClickListener {
 
     private lateinit var viewModel: MainViewModel
     private lateinit var binding: ActivityMainBinding
+    private lateinit var adapter: ShopListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
+
+        adapter = ShopListAdapter(listOf(), this)
+        binding.activityMainRv.adapter = adapter
+
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         viewModel.shopList.observe(this) {
-            binding.activityMainRv.adapter = ShopListAdapter(it, this)
+            adapter.setData(it)
         }
 
         setContentView(binding.root)
