@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">ShoppingList</string>
+    <string name="item_shop_no_name">Нет названия</string>
+    <string name="item_shop_count">0</string>
+    <string name="activity_main_add_button">Add new shop item</string>
 </resources>
