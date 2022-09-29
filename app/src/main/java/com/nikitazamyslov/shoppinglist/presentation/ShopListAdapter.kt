@@ -8,11 +8,18 @@ import androidx.recyclerview.widget.RecyclerView
 import com.nikitazamyslov.shoppinglist.R
 import com.nikitazamyslov.shoppinglist.domain.entity.ShopItem
 
-class ShopListAdapter(
-    private var dataset: List<ShopItem>, private val itemClickListener: OnItemClickListener
-) : RecyclerView.Adapter<ShopListAdapter.ViewHolder>() {
+class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ViewHolder>() {
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    var dataset = listOf<ShopItem>()
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+
+    var onClickListener: ((ShopItem) -> Unit)? = null
+    var onLongClickListener: ((ShopItem) -> Unit)? = null
+
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private var name: TextView
         private var count: TextView
 
@@ -23,19 +30,17 @@ class ShopListAdapter(
             }
         }
 
-        fun bind(data: ShopItem, onItemClickListener: OnItemClickListener) {
+        fun bind(data: ShopItem) {
             name.text = data.name
             count.text = data.count.toString()
             itemView.setOnLongClickListener {
-                onItemClickListener.onItemClicker(data)
+                onLongClickListener?.invoke(data)
                 true
             }
+            itemView.setOnClickListener {
+                onClickListener?.invoke(data)
+            }
         }
-    }
-
-    fun setData(newDataSet: List<ShopItem>) {
-        dataset = newDataSet
-        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -52,16 +57,12 @@ class ShopListAdapter(
         )
     }
 
-    override fun onViewRecycled(holder: ViewHolder) {
-        super.onViewRecycled(holder)
-    }
-
     override fun getItemViewType(position: Int): Int {
         return if (dataset[position].enabled) VIEW_TYPE_ENABLED else VIEW_TYPE_DISABLED
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(dataset[position], itemClickListener)
+        holder.bind(dataset[position])
     }
 
     override fun getItemCount() = dataset.size
@@ -69,7 +70,6 @@ class ShopListAdapter(
     companion object {
         const val VIEW_TYPE_DISABLED = 0
         const val VIEW_TYPE_ENABLED = 1
-
         const val MAX_POOL_SIZE = 15
     }
 }

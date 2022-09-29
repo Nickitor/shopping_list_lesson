@@ -2,45 +2,80 @@ package com.nikitazamyslov.shoppinglist.presentation
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.widget.Adapter
-import android.widget.ListAdapter
 import androidx.lifecycle.ViewModelProvider
-import com.nikitazamyslov.shoppinglist.R
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.nikitazamyslov.shoppinglist.databinding.ActivityMainBinding
-import com.nikitazamyslov.shoppinglist.domain.entity.ShopItem
 
-class MainActivity : AppCompatActivity(), OnItemClickListener {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var viewModel: MainViewModel
     private lateinit var binding: ActivityMainBinding
-    private lateinit var adapter: ShopListAdapter
+    private lateinit var shopAdapter: ShopListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
 
-        adapter = ShopListAdapter(listOf(), this)
-        binding.activityMainRv.adapter = adapter
-        binding.activityMainRv.recycledViewPool.setMaxRecycledViews(
-            ShopListAdapter.VIEW_TYPE_ENABLED,
-            ShopListAdapter.MAX_POOL_SIZE
-        )
-        binding.activityMainRv.recycledViewPool.setMaxRecycledViews(
-            ShopListAdapter.VIEW_TYPE_DISABLED,
-            ShopListAdapter.MAX_POOL_SIZE
-        )
-        binding.activityMainRv.recycledViewPool.
+        setupRecyclerView()
 
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         viewModel.shopList.observe(this) {
-            adapter.setData(it)
+            shopAdapter.dataset = it
         }
 
         setContentView(binding.root)
     }
 
-    override fun onItemClicker(item: ShopItem) {
-        viewModel.editShopItem(item)
+    private fun setupRecyclerView() {
+        shopAdapter = ShopListAdapter()
+        var a = with(binding.activityMainRv) {
+            adapter = shopAdapter
+            binding.activityMainRv.recycledViewPool.setMaxRecycledViews(
+                ShopListAdapter.VIEW_TYPE_ENABLED,
+                ShopListAdapter.MAX_POOL_SIZE
+            )
+            recycledViewPool.setMaxRecycledViews(
+                ShopListAdapter.VIEW_TYPE_DISABLED,
+                ShopListAdapter.MAX_POOL_SIZE
+            )
+        }
+        setSwipeListener()
+        setupClickListener()
+        setupLongClickListener()
+    }
+
+    private fun setSwipeListener() {
+        val callback = object : ItemTouchHelper.SimpleCallback(
+            0,
+            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ) {
+
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                viewModel.deleteShopItem(shopAdapter.dataset[viewHolder.adapterPosition])
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(binding.activityMainRv)
+    }
+
+    private fun setupLongClickListener() {
+        shopAdapter.onLongClickListener = {
+            viewModel.editShopItem(it)
+        }
+    }
+
+    private fun setupClickListener() {
+        shopAdapter.onClickListener = {
+            println(it.toString())
+        }
     }
 }
