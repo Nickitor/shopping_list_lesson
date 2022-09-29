@@ -9,8 +9,7 @@ import com.nikitazamyslov.shoppinglist.R
 import com.nikitazamyslov.shoppinglist.domain.entity.ShopItem
 
 class ShopListAdapter(
-    private var dataset: List<ShopItem>,
-    private val itemClickListener: OnItemClickListener
+    private var dataset: List<ShopItem>, private val itemClickListener: OnItemClickListener
 ) : RecyclerView.Adapter<ShopListAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -41,12 +40,15 @@ class ShopListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
-            LayoutInflater.from(parent.context)
-                .inflate(
-                    if (viewType == 1) R.layout.item_shop_enabled else R.layout.item_shop_disabled,
-                    parent,
-                    false
-                )
+            LayoutInflater.from(parent.context).inflate(
+                when (viewType) {
+                    VIEW_TYPE_ENABLED -> R.layout.item_shop_enabled
+                    VIEW_TYPE_DISABLED -> R.layout.item_shop_disabled
+                    else -> {
+                        throw Exception("Invalid view type")
+                    }
+                }, parent, false
+            )
         )
     }
 
@@ -55,7 +57,7 @@ class ShopListAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (dataset[position].enabled) 1 else 0
+        return if (dataset[position].enabled) VIEW_TYPE_ENABLED else VIEW_TYPE_DISABLED
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -63,4 +65,11 @@ class ShopListAdapter(
     }
 
     override fun getItemCount() = dataset.size
+
+    companion object {
+        const val VIEW_TYPE_DISABLED = 0
+        const val VIEW_TYPE_ENABLED = 1
+
+        const val MAX_POOL_SIZE = 15
+    }
 }

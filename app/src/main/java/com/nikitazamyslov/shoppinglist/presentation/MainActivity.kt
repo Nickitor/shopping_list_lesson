@@ -22,6 +22,15 @@ class MainActivity : AppCompatActivity(), OnItemClickListener {
 
         adapter = ShopListAdapter(listOf(), this)
         binding.activityMainRv.adapter = adapter
+        binding.activityMainRv.recycledViewPool.setMaxRecycledViews(
+            ShopListAdapter.VIEW_TYPE_ENABLED,
+            ShopListAdapter.MAX_POOL_SIZE
+        )
+        binding.activityMainRv.recycledViewPool.setMaxRecycledViews(
+            ShopListAdapter.VIEW_TYPE_DISABLED,
+            ShopListAdapter.MAX_POOL_SIZE
+        )
+        binding.activityMainRv.recycledViewPool.
 
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         viewModel.shopList.observe(this) {
