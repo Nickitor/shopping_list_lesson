@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.nikitazamyslov.shoppinglist.databinding.ActivityMainBinding
+import com.nikitazamyslov.shoppinglist.presentation.adapter.ShopListAdapter
 
 class MainActivity : AppCompatActivity() {
 
