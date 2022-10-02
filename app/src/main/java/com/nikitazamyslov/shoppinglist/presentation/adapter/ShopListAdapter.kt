@@ -5,46 +5,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.nikitazamyslov.shoppinglist.R
 import com.nikitazamyslov.shoppinglist.domain.entity.ShopItem
 
-class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ViewHolder>() {
-
-    var dataset = listOf<ShopItem>()
-        set(value) {
-            val callback = ShopListDiffCallback(dataset, value)
-            val diffResult = DiffUtil.calculateDiff(callback)
-            diffResult.dispatchUpdatesTo(this)
-            field = value
-        }
+class ShopListAdapter : ListAdapter<ShopItem, ViewHolder>(ShopItemDiffCallback()) {
 
     var onClickListener: ((ShopItem) -> Unit)? = null
     var onLongClickListener: ((ShopItem) -> Unit)? = null
-
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private var name: TextView
-        private var count: TextView
-
-        init {
-            view.apply {
-                name = view.findViewById(R.id.item_shop_name)
-                count = view.findViewById(R.id.item_shop_count)
-            }
-        }
-
-        fun bind(data: ShopItem) {
-            name.text = data.name
-            count.text = data.count.toString()
-            itemView.setOnLongClickListener {
-                onLongClickListener?.invoke(data)
-                true
-            }
-            itemView.setOnClickListener {
-                onClickListener?.invoke(data)
-            }
-        }
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -61,14 +30,22 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ViewHolder>() {
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (dataset[position].enabled) VIEW_TYPE_ENABLED else VIEW_TYPE_DISABLED
+        return if (getItem(position).enabled) VIEW_TYPE_ENABLED else VIEW_TYPE_DISABLED
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(dataset[position])
+        with(holder) {
+            val data = getItem(position)
+            bind(data)
+            itemView.setOnLongClickListener {
+                onLongClickListener?.invoke(data)
+                true
+            }
+            itemView.setOnClickListener {
+                onClickListener?.invoke(data)
+            }
+        }
     }
-
-    override fun getItemCount() = dataset.size
 
     companion object {
         const val VIEW_TYPE_DISABLED = 0
